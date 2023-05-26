@@ -1,4 +1,4 @@
-from stage import InterviewStage, INTERVIEW_STAGES
+from stage.stages import InterviewStage, INTERVIEW_STAGES
 from utils import StreamingCallbackHandler
 
 

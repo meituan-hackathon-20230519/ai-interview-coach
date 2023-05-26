@@ -7,7 +7,7 @@ from anyio import start_blocking_portal
 
 from ai_interview_coach.jd import PM_JD, RD_JD
 from coach import InterviewCoach, Resume
-from stage import INTERVIEW_STAGES
+from stage.stages import INTERVIEW_STAGES
 from utils import StreamingCallbackHandler
 
 logging.basicConfig(level=logging.INFO)
