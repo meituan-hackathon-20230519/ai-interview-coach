@@ -77,7 +77,7 @@ class EvaluationGenerator:
         return stages.questions[0].eval_requirements
 
     async def __generate(self, messages: list[BaseMessage], callback: StreamingCallbackHandler = None):
-        if not callback:
+        if callback:
             evaluate_callback = EvaluateCallbackHandler(callback)
             result = await self.llm.agenerate(messages=[messages], callbacks=[evaluate_callback])
         else:
