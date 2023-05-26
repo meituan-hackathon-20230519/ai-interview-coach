@@ -17,7 +17,7 @@ class InterviewCoach:
             callback: StreamingCallbackHandler,
     ) -> InterviewStage:
         # Call LLM to determine whether to stay at the current stage (and reason why so)
-        # If no, check if we have reached maximum rounds
+        # If yes, check if we have reached maximum rounds. If reached max, go to next stage.
         # If staying, call LLM to generate follow-up question;
         # Otherwise, call LLM to generate feedback and generate question in the next stage in parallel
         await callback.on_new_token("That's cool")
