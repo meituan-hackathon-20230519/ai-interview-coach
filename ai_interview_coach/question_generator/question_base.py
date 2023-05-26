@@ -7,6 +7,7 @@ from langchain.prompts.chat import HumanMessagePromptTemplate, SystemMessageProm
     ChatPromptTemplate
 
 from question_generator.question_prompt import QUESTION_GENERATE_TEMPLATE, SYSTEM
+from util.chat import format_history
 from utils import StreamingCallbackHandler
 
 logger = logging.getLogger(__name__)
@@ -39,13 +40,14 @@ class QuestionGenerator:
             HumanMessagePromptTemplate.from_template(QUESTION_GENERATE_TEMPLATE)
         ]
         template = ChatPromptTemplate(
-            input_variables=["question", "resume"], messages=messages
+            input_variables=["question", "resume", "history"], messages=messages
         )
         return cls(llm, template)
 
-    async def arun(self, question: str, resume: str, callback: StreamingCallbackHandler) -> str:
+    async def arun(self, question: str, resume: str, history: list[list], callback: StreamingCallbackHandler) -> str:
         question_callback = QuestionCallbackHandler(callback)
         messages = self.template.format_messages(question=question,
-                                                 resume=resume,)
+                                                 resume=resume,
+                                                 history=format_history(history))
         result = await self.llm.agenerate(messages=[messages], callbacks=[question_callback])
         return result.generations[0][0].text

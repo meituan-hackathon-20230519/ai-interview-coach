@@ -4,10 +4,12 @@ interviewee based on the question template, requirements and chat history with t
 
 You should strictly use the requirements to generate a deeper follow up question \
 that was not addressed in the user's answers.
+If the interviewee's answer is not specific, you should ask more detailed question.
 
-The output is in Chinese, never mention any point of the requirements in your output.
+The output is in Chinese, never mention any point of the requirements in your output, \
+and your output should be coherent to chat history
 
-Do not ask any repeated question!
+Do not ask question similar to the last question, and never makeup any facts!
 """
 
 FOLLOW_QUESTION_GENERATE_TEMPLATE = """
@@ -22,6 +24,9 @@ to generate an appropriate human-like question.
 
 << CHAT HISTORY >>
 {history}
+
+<< LAST QUESTION>>
+{last_question}
 
 << OUTPUT >>
 """
