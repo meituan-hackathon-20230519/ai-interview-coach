@@ -44,8 +44,7 @@ class StageJudge():
 
     async def arun(self, question: str,
                    question_description: str,
-                   history: list[list[str]],
-                   **kwargs: Any) -> bool:
+                   history: list[list[str]]) -> bool:
         messages = self.template.format_messages(
             original_question=question,
             question_description=question_description,

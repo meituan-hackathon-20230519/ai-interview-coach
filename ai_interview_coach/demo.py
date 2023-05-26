@@ -109,7 +109,7 @@ with gr.Blocks() as demo:
                         upload_resume, [num1, self_intro_txt, exp_txt, resume_state], [tabs, resume_state]
                     )
         with gr.Tab("模拟面试", id=2):
-            stage_state = gr.State(INTERVIEW_STAGES[0])
+            stage_state = gr.State(0)
             chatbot = gr.Chatbot([[None, "你好，我是面试官，请介绍一下你自己。"]], elem_id="chatbot")
             with gr.Row():
                 with gr.Column(scale=0.8):
