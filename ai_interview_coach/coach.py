@@ -1,4 +1,5 @@
 import copy
+import logging
 import random
 from typing import cast
 
@@ -10,6 +11,8 @@ from question_generator.question_base import QuestionGenerator
 from stage.stage_judge import StageJudge
 from stage.stages import INTERVIEW_STAGES, InterviewQuestion
 from utils import StreamingCallbackHandler
+
+logger = logging.getLogger(__name__)
 
 llm = ChatOpenAI(
     model_name="gpt-3.5-turbo",
@@ -23,8 +26,32 @@ evaluation_generator = EvaluationGenerator.build(llm=llm)
 max_rounds = 4
 
 
+SELF_INTRO = """
+我叫小王，毕业于北京邮电大学。拥有2年的产品工作经验，曾在饿了么任职，负责饿了么履约链路相关产品设计工作，熟悉后台产品架构。我擅长进行产品可行性分析、需求梳理与规划，以及项目管理。有一定的同理心，具备积极主动、自驱的工作态度。
+"""
+
+SELF_EXPERIENCE = """
+饿了么 - 产品经理（2021.7-至今）
+
+1.饿了么商超取餐时效优化项目（2021.10-2021.12）
+ * 负责需求梳理，与销售业务合作，结合商超实际业务场景考察，梳理业务需求。
+ * 通过对取餐时效数据进行深度挖掘，识别关键问题，提出解决方案
+ * 协调各部门资源，推动项目落地，使取餐时效提升8%
+
+2.饿了么智能调度系统升级（2022.02 - 2022.05）
+ * 负责可行性分析，评估升级智能调度系统的必要性和可行性
+ * 设计调度系统升级方案，并与技术团队合作，完成需求文档编写
+ * 跟进项目进度，确保项目按时上线，配送效率提升了12%
+
+3.饿了么骑手接单范围优化项目（2022.07 - 2022.09）
+ * 分析骑手接单范围与送餐效率的关系，提出优化建议
+ * 与数据团队合作，对接单范围进行精细化调整，优化骑手接单体验
+ * 项目实施后，有效降低骑手因接单范围过大导致的无效接单率，提升了整体配送效率
+"""
+
+
 class Resume:
-    def __init__(self, self_intro: str = "", experience: str = ""):
+    def __init__(self, self_intro: str = SELF_INTRO, experience: str = SELF_EXPERIENCE):
         self.self_intro = self_intro
         self.experience = experience
 
@@ -65,11 +92,12 @@ class InterviewCoach:
         # If reached max, go to next stage and generate the question.
         if not satisfy:
             # If staying, call LLM to generate follow-up question;
-            if len(history) < max_rounds:  # 追问
+            if len(pass_history) < max_rounds:  # 追问
                 follow_up_question = await follow_up_generator.arun(question=question.question,
                                                                     requirements=question.follow_up_requirements,
                                                                     history=pass_history,
                                                                     callback=callback)
+                logger.info(f"follow up question:{follow_up_question}, stage index:{stage_index}")
                 return stage_index, follow_up_question
         # Otherwise, call LLM to generate feedback and generate question in the next stage in parallel
         else:
@@ -85,6 +113,7 @@ class InterviewCoach:
                 generate_question = await question_generator.arun(question=question.question,
                                                                   resume=resume.format(),
                                                                   callback=callback)
+                logger.info(f"generate new question:{generate_question}, stage index:{stage_index}")
                 # 当前阶段总结，使用current_stage
                 evaluation = await evaluation_generator.arun(current_stage, history)
                 self.evaluation_list.append(evaluation)

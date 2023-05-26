@@ -78,7 +78,7 @@ def bot(history, resume, stage):
         except Exception:
             logger.exception("Error in bot")
             output = ""
-        speech_service.text_to_speech(output)
+        # speech_service.text_to_speech(output)
         q.put(job_done)
 
     with start_blocking_portal() as portal:
