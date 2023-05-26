@@ -18,7 +18,7 @@ class StageJudgeTestCase(unittest.TestCase):
 
     def test_self_introduction(self):
         question = "您好，我是本次的面试官，我姓王，是美团的产品经理，现在开始面试。请先自我介绍一下"
-        question_description = """
+        requirements = """
             职业经历介绍
             1.工作年限
             2.历史任职公司
@@ -35,12 +35,12 @@ class StageJudgeTestCase(unittest.TestCase):
         """
         history = [[question, answer]]
 
-        result = asyncio.run(self.stage.arun(question, question_description, history))
+        result = asyncio.run(self.stage.arun(question, requirements, history))
         print(result)
 
     def test_work_introduction(self):
         question = "我对您之前在饿了么的取餐时效优化项目比较感兴趣，可以介绍一下吗？"
-        question_description = """
+        requirements = """
             项目的背景
             项目的任务/要解决的问题
             采取的措施/动作
@@ -65,5 +65,5 @@ class StageJudgeTestCase(unittest.TestCase):
         # """
         history = [[question, answer]]
 
-        result = asyncio.run(self.stage.arun(question, question_description, history))
+        result = asyncio.run(self.stage.arun(question, requirements, history))
         print(result)

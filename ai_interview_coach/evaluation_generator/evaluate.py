@@ -50,7 +50,7 @@ class EvaluationGenerator:
             HumanMessagePromptTemplate.from_template(EVALUATE_TEMPLATE)
         ]
         evaluation_template = ChatPromptTemplate(
-            input_variables=["question_descriptions", "history"], messages=messages
+            input_variables=["requirements", "history"], messages=messages
         )
         return cls(llm, evaluation_template)
 
@@ -80,6 +80,9 @@ class EvaluationGenerator:
         evaluation = self.parse_result(result)
         return evaluation
 
+    async def update_cache(self, session_id: str, stages: list[InterviewStage]):
+        self.stage_cache[session_id] = stages
+
     async def arun(self, stage: InterviewStage,
                    session_id: str,
                    history: list[list[str]],
@@ -91,7 +94,7 @@ class EvaluationGenerator:
         if total_evaluation:
             if session_id in self.stage_cache:
                 messages = self.template.format_messages(
-                    question_description=self.format_eval_question_description(self.stage_cache[session_id]),
+                    requirements=self.format_eval_question_description(self.stage_cache[session_id]),
                     history=history)
             else:
                 return Evaluation("## 面试评价\n暂无，请先进行面试吧~")
@@ -100,17 +103,20 @@ class EvaluationGenerator:
                 self.stage_cache[session_id].append(stage)
             else:
                 self.stage_cache[session_id] = [stage]
-            messages = self.template.format_messages(question_description=self.format_eval_question_description(stage),
+            messages = self.template.format_messages(requirements=self.format_eval_question_description(stage),
                                                      history=history)
+
         evaluation = await self.__generate(messages, callback)
+
         if total_evaluation:
-            if session_id in self.evaluation_cache:
-                self.evaluation_cache[session_id]["total_evaluation"] = evaluation
-            else:
-                self.evaluation_cache[session_id] = {"total_evaluation": evaluation}
+            stage_name = "total_evaluation"
         else:
-            if session_id in self.evaluation_cache:
-                self.evaluation_cache[session_id][stage.stage_name] = evaluation
-            else:
-                self.evaluation_cache[session_id] = {stage.stage_name: evaluation}
+            stage_name = stage.stage_name
+
+        if session_id in self.evaluation_cache:
+            self.evaluation_cache[session_id][stage_name] = evaluation
+        else:
+            self.evaluation_cache[session_id] = {stage_name: evaluation}
+
+        logger.info(f"generate {stage_name} evaluation: \n{evaluation.response}")
         return evaluation

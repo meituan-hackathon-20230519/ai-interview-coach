@@ -1,6 +1,7 @@
 import asyncio
 import json
 import unittest
+import uuid
 
 from langchain.chat_models import ChatOpenAI
 
@@ -48,9 +49,11 @@ class EvaluationGenerateTestCase(unittest.TestCase):
             """
         ]]
 
-        result = asyncio.run(self.generator.arun(stage, history, False))
+        session_id = str(uuid.uuid4())
+        asyncio.run(self.generator.update_cache(session_id, [stage]))
+        result = asyncio.run(self.generator.arun(stage, str(uuid.uuid4()), history, False))
 
-        print(json.dumps(result.__dict__, indent=4, ensure_ascii=False))
+        print(result.response)
 
     def test_generate_total_interview(self):
         stages = INTERVIEW_STAGES
@@ -86,6 +89,8 @@ class EvaluationGenerateTestCase(unittest.TestCase):
         ]
         ]
 
-        result = asyncio.run(self.generator.arun(stages, history, True))
+        session_id = str(uuid.uuid4())
+        asyncio.run(self.generator.update_cache(session_id, stages))
+        result = asyncio.run(self.generator.arun(stages, session_id, history, True))
 
-        print(json.dumps(result.__dict__, indent=4, ensure_ascii=False))
+        print(result.response)

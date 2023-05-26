@@ -71,7 +71,7 @@ class InterviewCoach:
         pass_history[0][0] = ""  # 去掉用户上一轮的输入
         if len(pass_history) < max_rounds:
             satisfy = await stage_judge.arun(question=question.question,
-                                             question_description=question.follow_up_requirements, history=pass_history)
+                                             requirements=question.follow_up_requirements, history=pass_history)
         else:
             satisfy = True
         # If stayed, check if we have reached maximum rounds.

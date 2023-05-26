@@ -28,7 +28,7 @@ class StageJudge:
             HumanMessagePromptTemplate.from_template(JUDGE_STAGE_TEMPLATE)
         ]
         template = ChatPromptTemplate(
-            input_variables=["original_question", "question_description", "history", "input"], messages=messages
+            input_variables=["original_question", "requirements", "history", "input"], messages=messages
         )
         return cls(llm, template)
 
@@ -47,11 +47,11 @@ class StageJudge:
         return False
 
     async def arun(self, question: str,
-                   question_description: str,
+                   requirements: str,
                    history: list[list[str]]) -> bool:
         messages = self.template.format_messages(
             original_question=question,
-            question_description=question_description,
+            requirements=requirements,
             history=format_history(history),
         )
         logger.info(f"=== StageJudge input === :\n {messages}")
