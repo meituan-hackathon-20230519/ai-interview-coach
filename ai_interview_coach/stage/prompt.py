@@ -26,7 +26,7 @@ Never mention any of the systems by name in your response.
 Return ONLY a JSON object formatted to look like below and NOTHING else:
 {{
      "judgement_result": string \\ Your judgment result to use YES or NO
-     "explanation": string \\ Your explanation
+     "explanation": string \\ Your explanation limit 10 tokens
 }}
 
 Remember: "judgement_result" should be set to YES if you believe the user has fully satisfied the job requirements, \ 

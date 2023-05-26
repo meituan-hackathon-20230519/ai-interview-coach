@@ -21,7 +21,7 @@ Return ONLY a JSON object formatted to look like below and NOTHING else:
      "explanation": string \\ Your explanation of the results distinguishing the highlights from the areas for bad case.
 }}
 
-Remember: "high_lights" and "bad_cases" and "explanation" should be human-like text.
+Remember: "high_lights" and "bad_cases" and "explanation" should be human-like text in Chinese.
 
 << CONTEXT >>
 {question_description}

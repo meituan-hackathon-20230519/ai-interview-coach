@@ -36,10 +36,14 @@ class StageJudge:
         text = get_text_from_llm_result(result)
         return text
 
-    def __format_stage_result(self, result: str) -> bool:
+    @classmethod
+    def __format_stage_result(cls, result: str) -> bool:
         if result:
-            judge_result = json.loads(result)
-            return judge_result and judge_result["judgement_result"]
+            try:
+                judge_result = json.loads(result)
+                return judge_result["judgement_result"] == "YES"
+            except Exception:
+                logger.exception("Failed to parse stage judge result")
         return False
 
     async def arun(self, question: str,
