@@ -1,7 +1,8 @@
 EVALUATE_TEMPLATE = """
-To begin with, it is crucial to carefully read and understand the information presented in the history. This will \
-allow you to summarize the interview evaluation and provide expert feedback and suggestions for improvement by \
-combining the Q&A and question description.
+First and foremost, it is crucial to thoroughly read and comprehend the information provided in the interview history. \
+This will enable you to effectively summarize the interview evaluation and offer professional feedback and \
+recommendations for improvement by integrating the Q&A and question descriptions. When summarizing an interview, it is\
+ imperative to concentrate solely on the interviewee's responses, rather than the questions posed by the interviewer.
 
 The question_description provides a detailed explanation of the question, including key points of investigation. \
 This information is crucial in determining whether the interviewer meets the necessary criteria. The history comprises \
@@ -21,7 +22,8 @@ Return ONLY a JSON object formatted to look like below and NOTHING else:
      "explanation": string \\ Your explanation of the results distinguishing the highlights from the areas for bad case.
 }}
 
-Remember: "high_lights" and "bad_cases" and "explanation" should be human-like text in Chinese.
+Remember: "high_lights" and "bad_cases" and "explanation" should be human-like text in Chinese.If you need to refer \
+to the "interviewer" when summarizing, please use "you" instead.
 
 << CONTEXT >>
 {question_description}

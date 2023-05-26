@@ -18,7 +18,7 @@ class EvaluationGenerateTestCase(unittest.TestCase):
         )
         self.generator = EvaluationGenerator.build(self.llm)
 
-    @unittest.skip("skip")
+    # @unittest.skip("skip")
     def test_generate_work_experience(self):
         stage = INTERVIEW_STAGES[1]
 
@@ -54,21 +54,6 @@ class EvaluationGenerateTestCase(unittest.TestCase):
 
     def test_generate_total_interview(self):
         stages = INTERVIEW_STAGES
-
-        # history = [[
-        #     "我对您之前在饿了么的取餐时效优化项目比较感兴趣，可以介绍一下吗？",
-        #     """
-        #     【背景】在商超场景下，配送现有流程：商家线上发单→配送调度派单→线下商家拣货出餐→骑手到店取餐。
-        #     【存在问题】在疫情、门店大促等门店单量密度非常高的场景下，存在两个问题：1、商家拣货出餐时长变长，骑手到店后商家还未出餐。2、外卖堆积骑手很难快速找到属于自己的货品。会导致：骑手取货效率变低，从而导致订单超时，影响用户体验。
-        #     【措施】因此通过搭建扫码取货功能，不直接分配任务给骑手，而是改由骑手扫码的方式获取配送任务。来解决此问题。
-        #         """
-        # ], [
-        #     "你在这个项目中担任了什么角色？",
-        #     "是产品主R/主负责人"
-        # ], [
-        #     "这个项目中还涉及到哪些团队和角色？",
-        #     "BU外部主要涉及到闪购商家端、闪购开放平台、订单中心、打印云协同4个部门，配送内部涉及运单、调度、ETA、客户运营、POI、活动、管控、骑手端共8个方向。"
-        # ]]
 
         history = [[
             "您好，我是本次的面试官，我姓王，是美团的产品经理，现在开始面试。请先自我介绍一下。",
