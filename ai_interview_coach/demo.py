@@ -7,6 +7,7 @@ from anyio import start_blocking_portal
 
 from ai_interview_coach.jd import PM_JD, RD_JD
 from coach import InterviewCoach, Resume
+from speech import SpeechService
 from utils import StreamingCallbackHandler
 
 logging.basicConfig(level=logging.INFO)
@@ -22,6 +23,7 @@ def handle_global_exception(exc_type, exc_value, exc_traceback):
 
 sys.excepthook = handle_global_exception
 interview_coach = InterviewCoach()
+speech_service = SpeechService()
 
 
 def upload_resume(current_tab, self_intro, experience, resume):
@@ -33,6 +35,34 @@ def upload_resume(current_tab, self_intro, experience, resume):
 def add_text(history, text):
     history = history + [(text, None)]
     return history, ""
+
+
+def start_talking(history):
+    q = Queue()
+    job_done = object()
+    history = history + [("", None)]
+
+    async def task():
+        try:
+            await speech_service.speech_to_text(StreamingCallbackHandler(q))
+        except Exception:
+            logger.exception("Error in STT")
+        q.put(job_done)
+
+    with start_blocking_portal() as portal:
+        portal.start_task_soon(task)
+        content = ""
+        while True:
+            try:
+                next_token = q.get(timeout=30)
+            except Empty:
+                break
+            if next_token is job_done:
+                yield history
+                break
+            content += next_token
+            history[-1] = (content, None)
+            yield history
 
 
 def bot(history, resume, stage):
@@ -47,6 +77,8 @@ def bot(history, resume, stage):
                                                                         StreamingCallbackHandler(q))
         except Exception:
             logger.exception("Error in bot")
+            output = ""
+        speech_service.text_to_speech(output)
         q.put(job_done)
 
     with start_blocking_portal() as portal:
@@ -121,8 +153,9 @@ with gr.Blocks() as demo:
                         bot, [chatbot, resume_state, stage_state], [chatbot, stage_state]
                     )
                 with gr.Column(scale=0.2, min_width=0):
-                    # TODO How to handle audio https://github.com/gradio-app/gradio/blob/main/demo/stream_audio/run.py
-                    btn = gr.Audio(label="语音", min_width=50, source="microphone", type="filepath", streaming=True)
+                    mic = gr.Button(value="🎙").click(start_talking, [chatbot], [chatbot]).then(
+                        bot, [chatbot, resume_state, stage_state], [chatbot, stage_state]
+                    )
             with gr.Row():
                 with gr.Column(scale=0.4, min_width=0):
                     num2 = gr.Number(value=2, visible=False)
