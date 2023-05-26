@@ -4,7 +4,7 @@ from langchain.chat_models.base import BaseChatModel
 from langchain.prompts.chat import BaseMessagePromptTemplate, HumanMessagePromptTemplate, SystemMessagePromptTemplate, \
     ChatPromptTemplate
 
-from question_generator.prompt import QUESTION_GENERATE_TEMPLATE, SYSTEM
+from question_generator.question_prompt import QUESTION_GENERATE_TEMPLATE, SYSTEM
 
 logger = logging.getLogger(__name__)
 

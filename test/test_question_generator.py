@@ -1,7 +1,7 @@
 import asyncio
 
 from langchain.chat_models import ChatOpenAI
-from question_generator.base import QuestionGenerator
+from question_generator.question_base import QuestionGenerator
 
 test_llm = ChatOpenAI(
     model_name="gpt-3.5-turbo",
