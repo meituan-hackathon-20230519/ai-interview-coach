@@ -10,7 +10,12 @@ llm = ChatOpenAI(
     temperature=0.0,
     streaming=True,
 )
+llm_4 = ChatOpenAI(
+    model_name="gpt-4",
+    temperature=0.0,
+    streaming=True,
+)
 stage_judge = StageJudge.build(llm=llm)
 question_generator = QuestionGenerator.build(llm=llm)
 follow_up_generator = FollowUpGenerator.build(llm=llm)
-evaluation_generator = EvaluationGenerator.build(llm=llm)
+evaluation_generator = EvaluationGenerator.build(llm=llm_4)
