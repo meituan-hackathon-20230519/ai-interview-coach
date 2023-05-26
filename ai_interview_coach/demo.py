@@ -1,3 +1,4 @@
+import asyncio
 import logging
 import sys
 import uuid
@@ -9,6 +10,7 @@ from anyio import start_blocking_portal
 from ai_interview_coach.jd import PM_JD, RD_JD
 from coach import InterviewCoach, Resume
 from speech import SpeechService
+from util.commons import evaluation_generator
 from utils import StreamingCallbackHandler
 
 logging.basicConfig(level=logging.INFO)
@@ -98,6 +100,32 @@ def bot(history, resume, stage, session_id):
             yield history, next_stage
 
 
+def generate_evaluation(history, resume, session_id):
+    q = Queue()
+    job_done = object()
+
+    async def task():
+        try:
+            await evaluation_generator.arun(None, session_id, history, True, StreamingCallbackHandler(q))
+        except Exception:
+            logger.exception("Error in generate_evaluation")
+        # speech_service.text_to_speech(output)
+        q.put(job_done)
+
+    with start_blocking_portal() as portal:
+        portal.start_task_soon(task)
+        content = "## 面试评价\n"
+        while True:
+            try:
+                next_token = q.get(timeout=100)
+            except Empty:
+                break
+            if next_token is job_done:
+                break
+            content += next_token
+            yield content
+
+
 with gr.Blocks() as demo:
     resume_state = gr.State(Resume())
     session = gr.State(str(uuid.uuid4()))
@@ -108,11 +136,13 @@ with gr.Blocks() as demo:
         def next_tab(current_tab):
             return gr.Tabs.update(selected=(current_tab + 1) % 4)
 
+
         def select_jd(current_tab, selection):
             if selection == "产品":
                 return next_tab(current_tab)
             else:
                 return gr.Tabs.update(selected=current_tab)
+
 
         with gr.Tab("选择JD", id=0):
             jd_radio = gr.Radio(["产品", "研发"], label="岗位", info="请选择你要面试的岗位").style(item_container=False)
@@ -164,10 +194,6 @@ with gr.Blocks() as demo:
                 with gr.Column(scale=0.2, min_width=0):
                     gr.Button("下一步").click(next_tab, num2, tabs)
         with gr.Tab("面试评价", id=3):
-            def generate_evaluation(history, resume, session_id):
-                # TODO
-                pass
-
             evaluation_txt = gr.Markdown(
                 "## 面试评价\n暂无，请点击生成"
             )

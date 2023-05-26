@@ -48,7 +48,7 @@ class EvaluationGenerateTestCase(unittest.TestCase):
             """
         ]]
 
-        result = asyncio.run(self.generator.arun(stage, history))
+        result = asyncio.run(self.generator.arun(stage, history, False))
 
         print(json.dumps(result.__dict__, indent=4, ensure_ascii=False))
 
@@ -86,6 +86,6 @@ class EvaluationGenerateTestCase(unittest.TestCase):
         ]
         ]
 
-        result = asyncio.run(self.generator.arun(stages, history))
+        result = asyncio.run(self.generator.arun(stages, history, True))
 
         print(json.dumps(result.__dict__, indent=4, ensure_ascii=False))

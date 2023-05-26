@@ -3,28 +3,13 @@ import logging
 import random
 from typing import cast
 
-from langchain.chat_models import ChatOpenAI
-
-from evaluation_generator.evaluate import EvaluationGenerator
-from question_generator.follow_up_base import FollowUpGenerator
-from question_generator.question_base import QuestionGenerator
-from stage.stage_judge import StageJudge
 from stage.stages import INTERVIEW_STAGES, InterviewQuestion
+from util.commons import stage_judge, follow_up_generator, question_generator, evaluation_generator
 from utils import StreamingCallbackHandler
 
 logger = logging.getLogger(__name__)
 
-llm = ChatOpenAI(
-    model_name="gpt-3.5-turbo",
-    temperature=0.0,
-    streaming=True,
-)
-stage_judge = StageJudge.build(llm=llm)
-question_generator = QuestionGenerator.build(llm=llm)
-follow_up_generator = FollowUpGenerator.build(llm=llm)
-evaluation_generator = EvaluationGenerator.build(llm=llm)
 max_rounds = 4
-
 
 SELF_INTRO = """
 我叫小王，毕业于北京邮电大学。拥有2年的产品工作经验，曾在饿了么任职，负责饿了么履约链路相关产品设计工作，熟悉后台产品架构。我擅长进行产品可行性分析、需求梳理与规划，以及项目管理。有一定的同理心，具备积极主动、自驱的工作态度。
@@ -116,10 +101,7 @@ class InterviewCoach:
                                                                   callback=callback)
                 logger.info(f"generate new question:{generate_question}, stage index:{stage_index}")
                 # 当前阶段总结，使用current_stage
-                evaluation = await evaluation_generator.arun(current_stage, history)
-                self.evaluation_list.append(evaluation)
+                await evaluation_generator.arun(current_stage, session_id, history, False)
             else:
-                # 需要调用所有阶段总结
-                total_evaluation = await evaluation_generator.arun(self.interview_stage_list, history, callback)
                 return (0, 0), "summary"
             return stage_index, generate_question

@@ -16,14 +16,10 @@ logger = logging.getLogger(__name__)
 
 
 class Evaluation:
-    high_lights: str
-    low_lights: str
-    explanation: str
+    response: str
 
-    def __init__(self, high_lights: str, low_lights: str, explanation: str):
-        self.high_lights = high_lights
-        self.low_lights = low_lights
-        self.explanation = explanation
+    def __init__(self, response: str):
+        self.response = response
 
 
 class EvaluateCallbackHandler(AsyncCallbackHandler):
@@ -41,6 +37,8 @@ class EvaluationGenerator:
     """
     llm: BaseChatModel
     template: ChatPromptTemplate
+    stage_cache: dict[str, list[InterviewStage]] = {}
+    evaluation_cache: dict[str, dict[str, Evaluation]] = {}
 
     def __init__(self, llm: BaseChatModel, template: ChatPromptTemplate):
         self.llm = llm
@@ -61,10 +59,7 @@ class EvaluationGenerator:
         text = get_text_from_llm_result(result)
         if text:
             try:
-                evaluation_str = json.loads(text)
-                evaluation = Evaluation(evaluation_str["high_lights"],
-                                        evaluation_str["low_lights"],
-                                        evaluation_str["explanation"])
+                evaluation = Evaluation(text)
                 return evaluation
             except Exception:
                 logger.exception("Failed to parse evaluation result")
@@ -85,11 +80,37 @@ class EvaluationGenerator:
         evaluation = self.parse_result(result)
         return evaluation
 
-    async def arun(self, stage: InterviewStage | list[InterviewStage], history: list[list[str]],
-                   callback: StreamingCallbackHandler = None) -> Evaluation:
+    async def arun(self, stage: InterviewStage,
+                   session_id: str,
+                   history: list[list[str]],
+                   total_evaluation: bool,
+                   callback: StreamingCallbackHandler = None) -> Evaluation | None:
         """
             Generate a evaluation for one stage or total
         """
-        messages = self.template.format_messages(question_description=self.format_eval_question_description(stage),
-                                                 history=history)
-        return await self.__generate(messages, callback)
+        if total_evaluation:
+            if session_id in self.stage_cache:
+                messages = self.template.format_messages(
+                    question_description=self.format_eval_question_description(self.stage_cache[session_id]),
+                    history=history)
+            else:
+                return Evaluation("## 面试评价\n暂无，请先进行面试吧~")
+        else:
+            if session_id in self.stage_cache:
+                self.stage_cache[session_id].append(stage)
+            else:
+                self.stage_cache[session_id] = [stage]
+            messages = self.template.format_messages(question_description=self.format_eval_question_description(stage),
+                                                     history=history)
+        evaluation = await self.__generate(messages, callback)
+        if total_evaluation:
+            if session_id in self.evaluation_cache:
+                self.evaluation_cache[session_id]["total_evaluation"] = evaluation
+            else:
+                self.evaluation_cache[session_id] = {"total_evaluation": evaluation}
+        else:
+            if session_id in self.evaluation_cache:
+                self.evaluation_cache[session_id][stage.stage_name] = evaluation
+            else:
+                self.evaluation_cache[session_id] = {stage.stage_name: evaluation}
+        return evaluation
