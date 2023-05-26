@@ -13,7 +13,7 @@ from util.perf import start_timer
 logger = logging.getLogger(__name__)
 
 
-class StageJudge():
+class StageJudge:
     llm: BaseChatModel
     template: ChatPromptTemplate
 
