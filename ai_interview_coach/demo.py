@@ -7,7 +7,6 @@ from anyio import start_blocking_portal
 
 from ai_interview_coach.jd import PM_JD, RD_JD
 from coach import InterviewCoach, Resume
-from stage.stages import INTERVIEW_STAGES
 from utils import StreamingCallbackHandler
 
 logging.basicConfig(level=logging.INFO)
@@ -44,7 +43,8 @@ def bot(history, resume, stage):
     async def task():
         nonlocal next_stage
         try:
-            next_stage = await interview_coach.agenerate_output(history, resume, stage, StreamingCallbackHandler(q))
+            next_stage, output = await interview_coach.agenerate_output(history, resume, stage,
+                                                                        StreamingCallbackHandler(q))
         except Exception:
             logger.exception("Error in bot")
         q.put(job_done)
@@ -54,7 +54,7 @@ def bot(history, resume, stage):
         content = ""
         while True:
             try:
-                next_token = q.get(timeout=30)
+                next_token = q.get(timeout=100)
             except Empty:
                 break
             if next_token is job_done:
@@ -109,7 +109,7 @@ with gr.Blocks() as demo:
                         upload_resume, [num1, self_intro_txt, exp_txt, resume_state], [tabs, resume_state]
                     )
         with gr.Tab("模拟面试", id=2):
-            stage_state = gr.State(0)
+            stage_state = gr.State((0, 0))
             chatbot = gr.Chatbot([[None, "你好，我是面试官，请介绍一下你自己。"]], elem_id="chatbot")
             with gr.Row():
                 with gr.Column(scale=0.8):
