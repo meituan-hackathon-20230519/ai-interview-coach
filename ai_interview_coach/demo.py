@@ -1,5 +1,6 @@
 import logging
 import sys
+import uuid
 from queue import Queue, Empty
 
 import gradio as gr
@@ -65,7 +66,7 @@ def start_talking(history):
             yield history
 
 
-def bot(history, resume, stage):
+def bot(history, resume, stage, session_id):
     q = Queue()
     job_done = object()
     next_stage = stage
@@ -73,12 +74,12 @@ def bot(history, resume, stage):
     async def task():
         nonlocal next_stage
         try:
-            next_stage, output = await interview_coach.agenerate_output(history, resume, stage,
+            next_stage, output = await interview_coach.agenerate_output(history, resume, stage, session_id,
                                                                         StreamingCallbackHandler(q))
         except Exception:
             logger.exception("Error in bot")
             output = ""
-        speech_service.text_to_speech(output)
+        # speech_service.text_to_speech(output)
         q.put(job_done)
 
     with start_blocking_portal() as portal:
@@ -99,6 +100,7 @@ def bot(history, resume, stage):
 
 with gr.Blocks() as demo:
     resume_state = gr.State(Resume())
+    session = gr.State(str(uuid.uuid4()))
 
     gr.HTML("<div><img src='file/logo.png' width='120' style='display:inline-block;vertical-align:middle;'>"
             "<h1 style='display:inline-block;vertical-align:middle;padding-left:1rem;font-size:2rem'>AI 聘</h1></div>")
@@ -150,22 +152,26 @@ with gr.Blocks() as demo:
                         placeholder="请在此输入",
                     ).style(container=False)
                     txt.submit(add_text, [chatbot, txt], [chatbot, txt]).then(
-                        bot, [chatbot, resume_state, stage_state], [chatbot, stage_state]
+                        bot, [chatbot, resume_state, stage_state, session], [chatbot, stage_state]
                     )
                 with gr.Column(scale=0.2, min_width=0):
-                    mic = gr.Button(value="🎙").click(start_talking, [chatbot], [chatbot]).then(
-                        bot, [chatbot, resume_state, stage_state], [chatbot, stage_state]
+                    mic = gr.Button("🎙").click(start_talking, [chatbot], [chatbot]).then(
+                        bot, [chatbot, resume_state, stage_state, session], [chatbot, stage_state]
                     )
             with gr.Row():
                 with gr.Column(scale=0.4, min_width=0):
                     num2 = gr.Number(value=2, visible=False)
                 with gr.Column(scale=0.2, min_width=0):
-                    gr.Button("获取面评").click(next_tab, num2, tabs)
+                    gr.Button("下一步").click(next_tab, num2, tabs)
         with gr.Tab("面试评价", id=3):
-            gr.HTML(
-                "<h1>兴哥说</h1>"
-                "<section>面试评价：牛逼</section>"
+            def generate_evaluation(history, resume, session_id):
+                # TODO
+                pass
+
+            evaluation_txt = gr.Markdown(
+                "## 面试评价\n暂无，请点击生成"
             )
+            gr.Button("获取面评").click(generate_evaluation, [chatbot, resume_state, session], evaluation_txt)
 
 if __name__ == "__main__":
     demo.queue().launch()
