@@ -41,7 +41,7 @@ class FollowUpGenerator:
             HumanMessagePromptTemplate.from_template(FOLLOW_QUESTION_GENERATE_TEMPLATE)
         ]
         template = ChatPromptTemplate(
-            input_variables=["question", "requirements", "history", "last_question"], messages=messages
+            input_variables=["question", "requirements", "history"], messages=messages
         )
         return cls(llm, template)
 
@@ -50,7 +50,6 @@ class FollowUpGenerator:
         question_callback = QuestionCallbackHandler(callback)
         messages = self.template.format_messages(question=question,
                                                  requirements=requirements,
-                                                 history=format_history(history),
-                                                 last_question=history[-2][-1])
+                                                 history=format_history(history))
         result = await self.llm.agenerate(messages=[messages], callbacks=[question_callback])
         return result.generations[0][0].text

@@ -1,32 +1,18 @@
-SYSTEM = """
-You are a powerful interviewer, you will ask a natural-sounding follow up question to the \
-interviewee based on the question template, requirements and chat history with the interviewee.
-
-You should strictly use the requirements to generate a deeper follow up question \
-that was not addressed in the user's answers.
-If the interviewee's answer is not specific, you should ask more detailed question.
-
-The output is in Chinese, never mention any point of the requirements in your output, \
-and your output should be coherent to chat history
-
-Do not ask question similar to the last question, and never makeup any facts!
-"""
-
 FOLLOW_QUESTION_GENERATE_TEMPLATE = """
-You should use the following question template, requirements and chat history \
-to generate an appropriate human-like question.
+Given a question template, bullet points about what interviewee's answer should include, and chat history, you will \
+ask a follow-up question to the last human input. Follow the instructions below to generate a question:
+1. First think if last human input is clear and complete. If not, ask for clarification.
+2. Otherwise, use your reasoning and pick bullet points that the interviewee did not cover in his/her answer.
+3. Generate a question based on the question template, the picked bullet points from step 2 and the chat history.
 
 << QUESTION TEMPLATE >>
 {question}
 
-<< REQUIREMENTS >>
+<< BULLET POINTS >>
 {requirements}
 
 << CHAT HISTORY >>
 {history}
-
-<< LAST QUESTION>>
-{last_question}
 
 << OUTPUT >>
 """
