@@ -1,13 +1,16 @@
 import json
 import logging
+from typing import Any
 
+from langchain.callbacks.base import AsyncCallbackHandler
 from langchain.chat_models.base import BaseChatModel
 from langchain.prompts import ChatPromptTemplate, HumanMessagePromptTemplate
-from langchain.schema import LLMResult
+from langchain.schema import LLMResult, BaseMessage
 
 from evaluation_generator.prompt import EVALUATE_TEMPLATE
 from stage.stages import InterviewStage
 from util.chat import get_text_from_llm_result
+from utils import StreamingCallbackHandler
 
 logger = logging.getLogger(__name__)
 
@@ -21,6 +24,15 @@ class Evaluation:
         self.high_lights = high_lights
         self.low_lights = low_lights
         self.explanation = explanation
+
+
+class EvaluateCallbackHandler(AsyncCallbackHandler):
+
+    def __init__(self, chained_callback: StreamingCallbackHandler):
+        self._chained_callback = chained_callback
+
+    async def on_llm_new_token(self, token: str, **kwargs: Any) -> None:
+        await self._chained_callback.on_new_token(token)
 
 
 class EvaluationGenerator:
@@ -64,15 +76,20 @@ class EvaluationGenerator:
             return str([stage.questions[0].eval_requirements for stage in stages])
         return stages.questions[0].eval_requirements
 
-    async def __generate(self, messages):
-        result = await self.llm.agenerate(messages=[messages])
+    async def __generate(self, messages: list[BaseMessage], callback: StreamingCallbackHandler = None):
+        if not callback:
+            evaluate_callback = EvaluateCallbackHandler(callback)
+            result = await self.llm.agenerate(messages=[messages], callbacks=[evaluate_callback])
+        else:
+            result = await self.llm.agenerate(messages=[messages])
         evaluation = self.parse_result(result)
         return evaluation
 
-    async def arun(self, stage: InterviewStage | list[InterviewStage], history: list[list[str]]) -> Evaluation:
+    async def arun(self, stage: InterviewStage | list[InterviewStage], history: list[list[str]],
+                   callback: StreamingCallbackHandler = None) -> Evaluation:
         """
             Generate a evaluation for one stage or total
         """
         messages = self.template.format_messages(question_description=self.format_eval_question_description(stage),
                                                  history=history)
-        return await self.__generate(messages)
+        return await self.__generate(messages, callback)

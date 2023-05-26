@@ -4,6 +4,7 @@ from typing import cast
 
 from langchain.chat_models import ChatOpenAI
 
+from evaluation_generator.evaluate import EvaluationGenerator
 from question_generator.follow_up_base import FollowUpGenerator
 from question_generator.question_base import QuestionGenerator
 from stage.stage_judge import StageJudge
@@ -18,6 +19,7 @@ llm = ChatOpenAI(
 stage_judge = StageJudge.build(llm=llm)
 question_generator = QuestionGenerator.build(llm=llm)
 follow_up_generator = FollowUpGenerator.build(llm=llm)
+evaluation_generator = EvaluationGenerator.build(llm=llm)
 max_rounds = 4
 
 
@@ -37,6 +39,8 @@ class Resume:
 
 class InterviewCoach:
     history_index = 0
+    interview_stage_list = []
+    evaluation_list = []
 
     async def agenerate_output(
             self,
@@ -46,6 +50,7 @@ class InterviewCoach:
             callback: StreamingCallbackHandler,
     ) -> tuple[tuple[int, int], str]:
         current_stage = INTERVIEW_STAGES[stage_index[0]]
+        self.evaluation_list.append(current_stage)
         # Call LLM to determine whether to stay at the current stage (and reason why so)
         question = cast(InterviewQuestion, current_stage.questions[stage_index[1]])
         copy_history = copy.deepcopy(history)
@@ -80,8 +85,11 @@ class InterviewCoach:
                 generate_question = await question_generator.arun(question=question.question,
                                                                   resume=resume.format(),
                                                                   callback=callback)
-                # TODO 需要调用当前阶段总结
+                # 当前阶段总结，使用current_stage
+                evaluation = await evaluation_generator.arun(current_stage, history)
+                self.evaluation_list.append(evaluation)
             else:
-                # TODO 需要调用所有阶段总结
+                # 需要调用所有阶段总结
+                total_evaluation = await evaluation_generator.arun(self.interview_stage_list, history, callback)
                 return (0, 0), "summary"
             return stage_index, generate_question
