@@ -3,7 +3,7 @@ import unittest
 
 from langchain.chat_models import ChatOpenAI
 
-from stage.stage_base import StageJudge
+from stage.stage_judge import StageJudge
 
 
 class StageJudgeTestCase(unittest.TestCase):
