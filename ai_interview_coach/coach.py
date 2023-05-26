@@ -74,6 +74,7 @@ class InterviewCoach:
             history: list[list[str | None]],
             resume: Resume,
             stage_index: tuple[int, int],
+            session_id: str,
             callback: StreamingCallbackHandler,
     ) -> tuple[tuple[int, int], str]:
         current_stage = INTERVIEW_STAGES[stage_index[0]]
