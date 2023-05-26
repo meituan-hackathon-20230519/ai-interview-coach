@@ -7,7 +7,7 @@ from langchain.prompts import ChatPromptTemplate, SystemMessagePromptTemplate, H
 from langchain.schema import LLMResult
 
 from stage.prompt import JUDGE_STAGE_TEMPLATE, SYSTEM
-from util.chat import ChatMessage, format_history, get_text_from_llm_result
+from util.chat import format_history, get_text_from_llm_result
 from util.perf import start_timer
 
 logger = logging.getLogger(__name__)
@@ -44,7 +44,7 @@ class StageJudge():
 
     async def arun(self, question: str,
                    question_description: str,
-                   history: list[list[str] | ChatMessage],
+                   history: list[list[str]],
                    **kwargs: Any) -> bool:
         messages = self.template.format_messages(
             original_question=question,

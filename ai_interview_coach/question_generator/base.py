@@ -5,7 +5,6 @@ from langchain.prompts.chat import BaseMessagePromptTemplate, HumanMessagePrompt
     ChatPromptTemplate
 
 from question_generator.prompt import QUESTION_GENERATE_TEMPLATE, SYSTEM
-from util.chat import ChatMessage
 
 logger = logging.getLogger(__name__)
 
@@ -32,7 +31,7 @@ class QuestionGenerator:
         )
         return cls(llm, template)
 
-    async def arun(self, question: str, requirements: str, resume: str, history: list[list[str] | ChatMessage]) -> str:
+    async def arun(self, question: str, requirements: str, resume: str, history: list[list[str]]) -> str:
         messages = self.template.format_messages(question=question,
                                                  requirements=requirements,
                                                  resume=resume,
