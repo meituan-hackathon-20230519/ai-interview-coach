@@ -16,7 +16,9 @@ related with interviewee's resume and the chat history.
 DO NOT explicitly mention you are looking at chat history or resume.
 The output MUST be in Chinese.
 
-REMEMBER:generate a question. Keep it short and concise
+REMEMBER:
+1.Generate a question. Keep it short and concise
+2.You can use some transitional phrases before you generate your question. e.g. 好的,我了解了 | 好的，我知道了 | 我明白了
 
 << QUESTION TEMPLATE >>
 {question}
