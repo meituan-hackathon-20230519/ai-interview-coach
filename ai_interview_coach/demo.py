@@ -1,5 +1,7 @@
 import gradio as gr
 
+from ai_interview_coach.jd import PM_JD, RD_JD
+
 
 class Resume:
     def __init__(self, self_intro: str = "", experience: str = ""):
@@ -42,21 +44,9 @@ with gr.Blocks() as demo:
             gr.Radio(["产品", "研发"], label="岗位", info="请选择你要面试的岗位").style(item_container=False)
             with gr.Row():
                 with gr.Column(scale=0.5):
-                    gr.Markdown(
-                        '''
-                        ## 产品
-                        * 0-3年经验
-                        * ...
-                        '''
-                    )
+                    gr.Markdown(PM_JD)
                 with gr.Column(scale=0.5):
-                    gr.Markdown(
-                        '''
-                        ## 研发
-                        * 0-3年经验
-                        * ...
-                        '''
-                    )
+                    gr.Markdown(RD_JD)
             with gr.Row():
                 with gr.Column(scale=0.4, min_width=0):
                     num0 = gr.Number(value=0, visible=False)
