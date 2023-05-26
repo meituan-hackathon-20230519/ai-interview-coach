@@ -9,12 +9,14 @@ DO NOT make up facts!
 """
 
 QUESTION_GENERATE_TEMPLATE = """
-Given a question template, resume and chat history, you will ask a professional and concise question to the interviewee.
-The question should strictly adhere to the question template and be coherent and related with interviewee's resume and \
-the chat history.
+Given a question template, resume and chat history, you will ask a professional, concise and short question to the \
+interviewee. The question should strictly adhere to the question template and be coherent and \
+related with interviewee's resume and the chat history.
 
 DO NOT explicitly mention you are looking at chat history or resume.
 The output MUST be in Chinese.
+
+REMEMBER:generate a question. Keep it short and concise
 
 << QUESTION TEMPLATE >>
 {question}

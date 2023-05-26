@@ -1,3 +1,4 @@
+import asyncio
 import copy
 import logging
 import random
@@ -62,6 +63,9 @@ class InterviewCoach:
             session_id: str,
             callback: StreamingCallbackHandler,
     ) -> tuple[tuple[int, int], str]:
+        if stage_index[0] >= len(INTERVIEW_STAGES):
+            await callback.on_new_token("面试结束！请点击下一步获取面试评价")
+            return stage_index, ""
         current_stage = INTERVIEW_STAGES[stage_index[0]]
         self.evaluation_list.append(current_stage)
         # Call LLM to determine whether to stay at the current stage (and reason why so)
@@ -76,33 +80,50 @@ class InterviewCoach:
             satisfy = True
         # If stayed, check if we have reached maximum rounds.
         # If reached max, go to next stage and generate the question.
-        if not satisfy:
+        if not satisfy and len(pass_history) < max_rounds:  # 追问
             # If staying, call LLM to generate follow-up question;
-            if len(pass_history) < max_rounds:  # 追问
+            if stage_index[0] == 3:  # 拓展问题阶段和倒数第二个阶段不用连贯，传入历史修改
                 follow_up_question = await follow_up_generator.arun(question=question.question,
                                                                     requirements=question.follow_up_requirements,
                                                                     history=pass_history,
                                                                     callback=callback)
-                logger.info(f"follow up question:{follow_up_question}, stage index:{stage_index}")
-                return stage_index, follow_up_question
+            else:
+                follow_up_question = await follow_up_generator.arun(question=question.question,
+                                                                    requirements=question.follow_up_requirements,
+                                                                    history=history[-4:],
+                                                                    callback=callback)
+            logger.info(f"follow up question:{follow_up_question}, stage index:{stage_index}")
+            return stage_index, follow_up_question
+
         # Otherwise, call LLM to generate feedback and generate question in the next stage in parallel
         else:
             # 使用下一阶段问题模板进行问题生成
             self.history_index = len(history) - 1
             new_stage_index = stage_index[0] + 1
+            copy_history = copy.deepcopy(history)
+            pass_history = copy_history[self.history_index:]
+            pass_history[0][0] = ""  # 去掉用户上一轮的输入
+            logger.info(f"round now:{len(pass_history)}")
             if new_stage_index < len(INTERVIEW_STAGES):
                 new_stage = INTERVIEW_STAGES[new_stage_index]
                 question_index = random.randint(0, len(new_stage.questions) - 1)
                 stage_index = (new_stage_index, question_index)
                 question = INTERVIEW_STAGES[new_stage_index].questions[question_index]
                 # 生成下阶段问题，只用到简历和问题模板
-                generate_question = await question_generator.arun(question=question.question,
-                                                                  resume=resume.format(),
-                                                                  callback=callback,
-                                                                  history=pass_history)
+                if stage_index[0] == 3:  # 拓展问题阶段和倒数第二个阶段不用连贯，传入历史修改
+                    generate_question, evaluation = await asyncio.gather(
+                        question_generator.arun(question=question.question, resume=resume.format(), callback=callback,
+                                                history=pass_history),
+                        evaluation_generator.arun(current_stage, session_id, history, False))
+                else:
+                    generate_question, evaluation = await asyncio.gather(
+                        question_generator.arun(question=question.question, resume=resume.format(), callback=callback,
+                                                history=history[-4:]),
+                        evaluation_generator.arun(current_stage, session_id, history, False))
                 logger.info(f"generate new question:{generate_question}, stage index:{stage_index}")
                 # 当前阶段总结，使用current_stage
                 await evaluation_generator.arun(current_stage, session_id, history, False)
             else:
-                return (0, 0), "summary"
+                await callback.on_new_token("面试结束！请点击下一步获取面试评价")
+                return stage_index, ""
             return stage_index, generate_question
