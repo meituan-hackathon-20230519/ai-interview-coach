@@ -27,7 +27,7 @@ Return ONLY a JSON object formatted to look like below and NOTHING else:
 }}
 
 Remember: "judgement_result" should be set to YES if you believe the user has fully satisfied the job requirements, \
-and NO otherwise.
+and NO otherwise.Don't output UNNECESSARY content.
 
 << CONTEXT >>
 {original_question}
