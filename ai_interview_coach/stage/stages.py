@@ -65,7 +65,7 @@ INTERVIEW_STAGES = [
     ]),
     InterviewStage("项目提问2", [
         InterviewQuestion(
-            "项目中遇到最大的挑战是什么？",
+            "在你提到的印象最深刻的项目中遇到最大的挑战是什么？",
             _PROJECT_QUESTION_2_FOLLOW_UP_REQS,
             _PROJECT_QUESTION_2_EVAL_REQS
         ),

@@ -7,7 +7,8 @@ from langchain.prompts.chat import HumanMessagePromptTemplate, SystemMessageProm
     ChatPromptTemplate
 
 from question_generator.follow_up_prompt import FOLLOW_QUESTION_GENERATE_TEMPLATE
-from question_generator.question_prompt import QUESTION_GENERATE_TEMPLATE, SYSTEM
+from question_generator.question_prompt import SYSTEM
+from util.chat import format_history
 from utils import StreamingCallbackHandler
 
 logger = logging.getLogger(__name__)
@@ -49,6 +50,6 @@ class FollowUpGenerator:
         question_callback = QuestionCallbackHandler(callback)
         messages = self.template.format_messages(question=question,
                                                  requirements=requirements,
-                                                 history=history)
+                                                 history=format_history(history))
         result = await self.llm.agenerate(messages=[messages], callbacks=[question_callback])
         return result.generations[0][0].text

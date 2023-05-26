@@ -98,7 +98,8 @@ class InterviewCoach:
                 # 生成下阶段问题，只用到简历和问题模板
                 generate_question = await question_generator.arun(question=question.question,
                                                                   resume=resume.format(),
-                                                                  callback=callback)
+                                                                  callback=callback,
+                                                                  history=pass_history)
                 logger.info(f"generate new question:{generate_question}, stage index:{stage_index}")
                 # 当前阶段总结，使用current_stage
                 await evaluation_generator.arun(current_stage, session_id, history, False)
