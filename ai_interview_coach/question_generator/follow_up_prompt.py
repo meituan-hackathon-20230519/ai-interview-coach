@@ -5,6 +5,9 @@ ask a follow-up question to the last human input. Follow the instructions below 
 2. Otherwise, use your reasoning and pick bullet points that the interviewee did not cover in his/her answer.
 3. Generate a concise question based on the question template, the picked bullet points from step 2 and the chat history.
 
+DO NOT explicitly mention you are looking at chat history or resume.
+The output MUST be in Chinese.
+
 << QUESTION TEMPLATE >>
 {question}
 
