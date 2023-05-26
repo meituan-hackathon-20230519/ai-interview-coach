@@ -1,1 +1,1 @@
-# ai-interview-coach
+# AI聘
