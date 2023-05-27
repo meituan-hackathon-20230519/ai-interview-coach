@@ -13,7 +13,7 @@ class EvaluationGenerateTestCase(unittest.TestCase):
 
     def setUp(self) -> None:
         self.llm = ChatOpenAI(
-            model_name="gpt-3.5-turbo",
+            model_name="gpt-4",
             temperature=0.0,
             streaming=True,
         )
@@ -50,8 +50,8 @@ class EvaluationGenerateTestCase(unittest.TestCase):
         ]]
 
         session_id = str(uuid.uuid4())
-        asyncio.run(self.generator.update_cache(session_id, [stage]))
-        result = asyncio.run(self.generator.arun(stage, str(uuid.uuid4()), history, False))
+        asyncio.run(self.generator.update_stage_cache(session_id, stage))
+        result = asyncio.run(self.generator.arun(stage, session_id, history))
 
         print(result.response)
 
@@ -90,7 +90,7 @@ class EvaluationGenerateTestCase(unittest.TestCase):
         ]
 
         session_id = str(uuid.uuid4())
-        asyncio.run(self.generator.update_cache(session_id, stages))
-        result = asyncio.run(self.generator.arun(stages, session_id, history, True))
+        asyncio.run(self.generator.update_total_cache(session_id, stages))
+        result = asyncio.run(self.generator.arun(stages, session_id, history))
 
         print(result.response)

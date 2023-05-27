@@ -106,7 +106,7 @@ def generate_evaluation(history, resume, session_id):
 
     async def task():
         try:
-            await evaluation_generator.arun(None, session_id, history, True, StreamingCallbackHandler(q))
+            await evaluation_generator.arun(None, session_id, history, StreamingCallbackHandler(q))
         except Exception:
             logger.exception("Error in generate_evaluation")
         # speech_service.text_to_speech(output)

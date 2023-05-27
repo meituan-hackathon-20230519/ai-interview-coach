@@ -114,15 +114,13 @@ class InterviewCoach:
                     generate_question, evaluation = await asyncio.gather(
                         question_generator.arun(question=question.question, resume=resume.format(), callback=callback,
                                                 history=pass_history),
-                        evaluation_generator.arun(current_stage, session_id, history, False))
+                        evaluation_generator.update_stage_cache(session_id, current_stage))
                 else:
                     generate_question, evaluation = await asyncio.gather(
                         question_generator.arun(question=question.question, resume=resume.format(), callback=callback,
                                                 history=history[-4:]),
-                        evaluation_generator.arun(current_stage, session_id, history, False))
+                        evaluation_generator.update_stage_cache(session_id, current_stage))
                 logger.info(f"generate new question:{generate_question}, stage index:{stage_index}")
-                # 当前阶段总结，使用current_stage
-                await evaluation_generator.arun(current_stage, session_id, history, False)
             else:
                 await callback.on_new_token("面试结束！请点击下一步获取面试评价")
                 return stage_index, ""
