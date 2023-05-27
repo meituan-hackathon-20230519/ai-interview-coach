@@ -110,16 +110,18 @@ class InterviewCoach:
                 stage_index = (new_stage_index, question_index)
                 question = INTERVIEW_STAGES[new_stage_index].questions[question_index]
                 # 生成下阶段问题，只用到简历和问题模板
+                # 当前阶段总结，使用current_stage
                 if stage_index[0] == 3:  # 拓展问题阶段和倒数第二个阶段不用连贯，传入历史修改
-                    generate_question, evaluation = await asyncio.gather(
-                        question_generator.arun(question=question.question, resume=resume.format(), callback=callback,
-                                                history=pass_history),
-                        evaluation_generator.update_stage_cache(session_id, current_stage))
+                    generate_question = await question_generator.arun(question=question.question,
+                                                                      resume=resume.format(), callback=callback,
+                                                                      history=pass_history)
                 else:
-                    generate_question, evaluation = await asyncio.gather(
-                        question_generator.arun(question=question.question, resume=resume.format(), callback=callback,
-                                                history=history[-4:]),
-                        evaluation_generator.update_stage_cache(session_id, current_stage))
+                    generate_question = await question_generator.arun(question=question.question,
+                                                                      resume=resume.format(),
+                                                                      callback=callback,
+                                                                      history=history[-4:])
+                # update stage cache
+                evaluation_generator.update_stage_cache(session_id, current_stage)
                 logger.info(f"generate new question:{generate_question}, stage index:{stage_index}")
             else:
                 await callback.on_new_token("面试结束！请点击下一步获取面试评价")

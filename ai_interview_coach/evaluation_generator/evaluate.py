@@ -80,10 +80,10 @@ class EvaluationGenerator:
         evaluation = self.parse_result(result)
         return evaluation
 
-    async def update_total_cache(self, session_id: str, stages: list[InterviewStage]):
+    def update_total_cache(self, session_id: str, stages: list[InterviewStage]):
         self.stage_cache[session_id] = stages
 
-    async def update_stage_cache(self, session_id: str, stage: InterviewStage):
+    def update_stage_cache(self, session_id: str, stage: InterviewStage):
         if session_id in self.stage_cache:
             self.stage_cache[session_id].append(stage)
         else:

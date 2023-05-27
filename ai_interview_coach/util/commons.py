@@ -16,6 +16,6 @@ llm_4 = ChatOpenAI(
     streaming=True,
 )
 stage_judge = StageJudge.build(llm=llm)
-question_generator = QuestionGenerator.build(llm=llm)
-follow_up_generator = FollowUpGenerator.build(llm=llm)
+question_generator = QuestionGenerator.build(llm=llm_4)
+follow_up_generator = FollowUpGenerator.build(llm=llm_4)
 evaluation_generator = EvaluationGenerator.build(llm=llm_4)
