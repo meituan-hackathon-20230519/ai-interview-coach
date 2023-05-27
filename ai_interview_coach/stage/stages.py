@@ -32,7 +32,7 @@ _PROJECT_QUESTION_FOLLOW_UP_REQS = '''
 - 你达成的结果
 - 整个团队达成的结果
 - 结果是否符合预期
-- 包含数据支持
+- 数据支持
 '''
 
 _PROJECT_QUESTION_2_FOLLOW_UP_REQS = '''

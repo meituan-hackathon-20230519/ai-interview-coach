@@ -69,7 +69,7 @@ class SpeechService:
         last_spoken = time.time()
         while not done:
             await asyncio.sleep(.5)
-            if time.time() - last_spoken > 2:
-                print("No speech detected for 2 seconds. Stopping recognition.")
+            if time.time() - last_spoken > 3.5:
+                print("No speech detected for 3.5 seconds. Stopping recognition.")
                 speech_recognizer.stop_continuous_recognition_async()
                 break
