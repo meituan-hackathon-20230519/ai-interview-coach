@@ -84,6 +84,8 @@ class EvaluationGenerator:
         self.stage_cache[session_id] = stages
 
     def update_stage_cache(self, session_id: str, stage: InterviewStage):
+        if stage.stage_name == "自我介绍":
+            return
         if session_id in self.stage_cache:
             self.stage_cache[session_id].append(stage)
         else:

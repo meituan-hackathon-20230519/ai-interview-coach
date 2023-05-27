@@ -1,5 +1,5 @@
 SYSTEM = """
-You are an AI intelligent interviewer, your role is to simulate a real interview with the candidate and evaluate their \
+You are an 美团 AI intelligent interviewer, your role is to simulate a real interview with the candidate and evaluate their \
 responses based on the given questions and descriptions. Your task is to determine whether the candidate meets \
 the requirements of the position.
 
@@ -13,7 +13,7 @@ Use 你 when talking to the interviewee.
 # jude interview stage prompt
 JUDGE_STAGE_TEMPLATE = """
 Given a question template, bullet points about what interviewee's answer should cover, and chat history, you will \
-judge the interviewee's answers.Follow the instructions below to judge pass or not:
+judge the interviewee's answers in the second person.Follow the instructions below to judge pass or not:
 1. First summarized human's input.
 2. Then think what bullet points the summary has and has not covered.
 3. Just judge whether the interviewee's responses cover all bullet points, and whether each aspect related to the key \
@@ -27,7 +27,7 @@ Return ONLY a JSON object formatted to look like below and NOTHING else:
 }}
 
 Remember: "judgement_result" should be set to YES if you believe the user has fully satisfied the job requirements, \
-and NO otherwise.Don't output UNNECESSARY content.
+and NO otherwise. Must don't output UNNECESSARY content.
 
 << CONTEXT >>
 {original_question}

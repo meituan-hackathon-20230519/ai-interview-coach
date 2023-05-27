@@ -195,7 +195,7 @@ with gr.Blocks() as demo:
                     gr.Button("下一步").click(next_tab, num2, tabs)
         with gr.Tab("面试评价", id=3):
             evaluation_txt = gr.Markdown(
-                "## 面试评价\n暂无，请点击生成"
+                "## 面试评价\n请点击生成"
             )
             gr.Button("获取面评").click(generate_evaluation, [chatbot, resume_state, session], evaluation_txt)
 
